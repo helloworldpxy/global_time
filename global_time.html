@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球时间显示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(25, 25, 40, 0.85);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 24px 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0c0;
+            font-weight: 300;
+        }
+        
+        .time-container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 30px;
+        }
+        
+        .time-card {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .time-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .location-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .timezone {
+            background: rgba(67, 97, 238, 0.2);
+            color: #4cc9f0;
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+        
+        .clock-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .analog-clock-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .digital-clock-container {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .analog-clock {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            background: rgba(20, 20, 35, 0.9);
+            border: 8px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .analog-clock::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #f72585;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 4px;
+            transform: translateX(-50%);
+        }
+        
+        .hour-hand {
+            width: 6px;
+            height: 40px;
+            background: #f0f0f0;
+            z-index: 3;
+        }
+        
+        .minute-hand {
+            width: 4px;
+            height: 60px;
+            background: #4cc9f0;
+            z-index: 4;
+        }
+        
+        .second-hand {
+            width: 2px;
+            height: 70px;
+            background: #f72585;
+            z-index: 5;
+        }
+        
+        .clock-mark {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 2px;
+        }
+        
+        .mark-hour {
+            width: 4px;
+            height: 12px;
+        }
+        
+        .mark-minute {
+            width: 2px;
+            height: 6px;
+        }
+        
+        .digital-clock {
+            font-size: 3.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #4cc9f0;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.4);
+        }
+        
+        .digital-seconds {
+            font-size: 1.5rem;
+            color: #f72585;
+            margin-left: 5px;
+        }
+        
+        .date-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .date-detail {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: #f0f0f0;
+        }
+        
+        .day-of-week {
+            color: #a0a0c0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .day-of-week i {
+            margin-right: 10px;
+            color: #4cc9f0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #a0a0c0;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .last-updated {
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: #707090;
+        }
+        
+        @media (max-width: 768px) {
+            .time-container {
+                flex-direction: column;
+                padding: 20px;
+            }
+            
+            .clock-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .digital-clock {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> 全球时间显示</h1>
+            <p class="subtitle">实时同步的北京时间和美国东部时间，精确到秒</p>
+        </header>
+        
+        <div class="time-container">
+            <!-- 北京时间 -->
+            <div class="time-card">
+                <div class="location-header">
+                    <div class="location-name">
+                        <i class="fas fa-flag"></i> 北京时间 (北京, 中国)
+                    </div>
+                    <div class="timezone">UTC+8</div>
+                </div>
+                
+                <div class="clock-container">
+                    <div class="analog-clock-container">
+                        <div class="analog-clock" id="beijing-analog">
+                            <!-- 模拟时钟刻度将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="digital-clock-container">
+                        <div class="digital-clock" id="beijing-digital">
+                            <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+                        </div>
+                        
+                        <div class="date-info">
+                            <div class="date-detail" id="beijing-date">2023年10月1日</div>
+                            <div class="day-of-week">
+                                <i class="far fa-calendar"></i> <span id="beijing-day">星期日</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 美国东部时间 -->
+            <div class="time-card">
+                <div class="location-header">
+                    <div class="location-name">
+                        <i class="fas fa-flag-usa"></i> 美国东部时间 (纽约, 美国)
+                    </div>
+                    <div class="timezone">UTC-5</div>
+                </div>
+                
+                <div class="clock-container">
+                    <div class="analog-clock-container">
+                        <div class="analog-clock" id="newyork-analog">
+                            <!-- 模拟时钟刻度将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="digital-clock-container">
+                        <div class="digital-clock" id="newyork-digital">
+                            <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+                        </div>
+                        
+                        <div class="date-info">
+                            <div class="date-detail" id="newyork-date">2026年1月28日</div>
+                            <div class="day-of-week">
+                                <i class="far fa-calendar"></i> <span id="newyork-day">星期三</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>全球时间显示应用 &copy; 2026 | 数据实时更新</p>
+            <p class="last-updated">最后更新: <span id="last-updated-time">--:--:--</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const beijingAnalog = document.getElementById('beijing-analog');
+        const beijingDigital = document.getElementById('beijing-digital');
+        const beijingDate = document.getElementById('beijing-date');
+        const beijingDay = document.getElementById('beijing-day');
+        
+        const newyorkAnalog = document.getElementById('newyork-analog');
+        const newyorkDigital = document.getElementById('newyork-digital');
+        const newyorkDate = document.getElementById('newyork-date');
+        const newyorkDay = document.getElementById('newyork-day');
+        const lastUpdatedTime = document.getElementById('last-updated-time');
+        
+        // 创建模拟时钟刻度
+        function createClockMarks(clockElement) {
+            // 创建小时刻度
+            for (let i = 0; i < 12; i++) {
+                const mark = document.createElement('div');
+                mark.className = 'clock-mark mark-hour';
+                const angle = i * 30; // 每30度一个刻度
+                const radius = 85;
+                const x = radius * Math.sin(angle * Math.PI / 180);
+                const y = -radius * Math.cos(angle * Math.PI / 180);
+                
+                mark.style.left = `calc(50% + ${x}px)`;
+                mark.style.top = `calc(50% + ${y}px)`;
+                mark.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                clockElement.appendChild(mark);
+            }
+            
+            // 创建分钟刻度
+            for (let i = 0; i < 60; i++) {
+                if (i % 5 !== 0) { // 跳过小时刻度
+                    const mark = document.createElement('div');
+                    mark.className = 'clock-mark mark-minute';
+                    const angle = i * 6; // 每6度一个刻度
+                    const radius = 85;
+                    const x = radius * Math.sin(angle * Math.PI / 180);
+                    const y = -radius * Math.cos(angle * Math.PI / 180);
+                    
+                    mark.style.left = `calc(50% + ${x}px)`;
+                    mark.style.top = `calc(50% + ${y}px)`;
+                    mark.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                    clockElement.appendChild(mark);
+                }
+            }
+            
+            // 创建时钟指针
+            const hourHand = document.createElement('div');
+            hourHand.className = 'hand hour-hand';
+            hourHand.id = clockElement.id + '-hour';
+            clockElement.appendChild(hourHand);
+            
+            const minuteHand = document.createElement('div');
+            minuteHand.className = 'hand minute-hand';
+            minuteHand.id = clockElement.id + '-minute';
+            clockElement.appendChild(minuteHand);
+            
+            const secondHand = document.createElement('div');
+            secondHand.className = 'hand second-hand';
+            secondHand.id = clockElement.id + '-second';
+            clockElement.appendChild(secondHand);
+        }
+        
+        // 初始化模拟时钟
+        createClockMarks(beijingAnalog);
+        createClockMarks(newyorkAnalog);
+        
+        // 中文星期名称
+        const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+        
+        // 格式化时间数字，确保两位数显示
+        function formatTime(num) {
+            return num < 10 ? '0' + num : num;
+        }
+        
+        // 获取指定时区的时间
+        function getTimeForTimezone(offset) {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            return new Date(utc + (3600000 * offset));
+        }
+        
+        // 更新时钟
+        function updateClocks() {
+            // 获取当前时间
+            const now = new Date();
+            
+            // 北京时间 (UTC+8)
+            const beijingTime = getTimeForTimezone(8);
+            updateClock(beijingTime, beijingAnalog, beijingDigital, beijingDate, beijingDay);
+            
+            // 美国东部时间 (UTC-5)
+            const newyorkTime = getTimeForTimezone(-5);
+            updateClock(newyorkTime, newyorkAnalog, newyorkDigital, newyorkDate, newyorkDay);
+            
+            // 更新最后更新时间
+            lastUpdatedTime.textContent = 
+                `${formatTime(now.getHours())}:${formatTime(now.getMinutes())}:${formatTime(now.getSeconds())}`;
+        }
+        
+        // 更新单个时钟
+        function updateClock(time, analogClock, digitalClock, dateElement, dayElement) {
+            // 提取时间
+            const hours = time.getHours();
+            const minutes = time.getMinutes();
+            const seconds = time.getSeconds();
+            
+            // 更新数字时钟
+            const digitalHours = digitalClock.querySelector('.hours');
+            const digitalMinutes = digitalClock.querySelector('.minutes');
+            const digitalSeconds = digitalClock.querySelector('.seconds');
+            
+            digitalHours.textContent = formatTime(hours);
+            digitalMinutes.textContent = formatTime(minutes);
+            digitalSeconds.textContent = formatTime(seconds);
+            
+            // 更新模拟时钟
+            const hourAngle = (hours % 12) * 30 + minutes * 0.5; // 每小时30度，每分钟0.5度
+            const minuteAngle = minutes * 6 + seconds * 0.1; // 每分钟6度，每秒0.1度
+            const secondAngle = seconds * 6; // 每秒6度
+            
+            const hourHand = document.getElementById(analogClock.id + '-hour');
+            const minuteHand = document.getElementById(analogClock.id + '-minute');
+            const secondHand = document.getElementById(analogClock.id + '-second');
+            
+            hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+            minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+            secondHand.style.transform = `translateX(-50%) rotate(${secondAngle}deg)`;
+            
+            // 更新日期
+            const year = time.getFullYear();
+            const month = time.getMonth() + 1;
+            const date = time.getDate();
+            const day = weekdays[time.getDay()];
+            
+            dateElement.textContent = `${year}年${month}月${date}日`;
+            dayElement.textContent = day;
+        }
+        
+        // 页面加载时初始化时钟
+        window.onload = function() {
+            updateClocks();
+            // 每秒更新一次
+            setInterval(updateClocks, 1000);
+        };
+    </script>
+</body>
+</html>
